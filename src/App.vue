@@ -1,10 +1,12 @@
 <script>
 import AppHeader from './components/header/AppHeader.vue';
+import AppMain from './components/main/AppMain.vue'
 import {store} from './store';
 import axios from 'axios';
   export default{
     components:{
-      AppHeader
+      AppHeader,
+      AppMain
     },
     data(){
       return{
@@ -12,16 +14,19 @@ import axios from 'axios';
       }
     },
     mounted(){
-      this.getFilms()
+      this.search()
     },
     methods:{
-      getFilms(){
-        let apiUrl=''
+      search(){
         if ( store.cerca != ' ' && store.cerca.trim() !== ''){
-          apiUrl=`${store.urlTmdbApi}${store.apiKey}&query=${store.cerca}`
-       
-          axios.get(apiUrl).then((Response)=>{
-            store.arrayFilm=Response.data
+          let apiUrlFilm=`${store.urlFilm}${store.apiKey}&query=${store.cerca}`
+          axios.get(apiUrlFilm).then((res)=>{
+            store.arrayFilm=res.data.results
+          })
+          let apiUrlSeries=`${store.urlSeries}${store.apiKey}&query=${store.cerca}`
+          axios.get(apiUrlSeries).then((res)=>{
+            store.arraySeries=res.data.results
+            // console.log(apiUrlSeries)
           })
         }
       }
@@ -32,19 +37,12 @@ import axios from 'axios';
 
 <template>
 
-  <AppHeader @cercaFilm="getFilms"/>
-  <ul>
-    <li 
-    v-if="store.arrayFilm.length!== 0"
-    v-for="(element, index) in store.arrayFilm.results" 
-    :key="index"
-    >
-    {{ element.title }},{{ element.original_title }},{{ element.original_language }},{{ element.vote_average }}
-    </li>
-  </ul>
+  <AppHeader @cercaFilm="search"/>
+  <AppMain/>
+
 </template>
 
-<style>
+<style lang="scss">
 
 
 </style>
